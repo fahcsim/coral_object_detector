@@ -1,3 +1,8 @@
+# object-detector specific
+vars*
+photos/*
+*.jpeg
+*.jpg
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
