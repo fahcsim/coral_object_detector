@@ -74,14 +74,20 @@ def main():
     objs = detect.get_objects(interpreter, threshold, scale)  
   print('-------RESULTS--------')
   if not objs:
+    success = False
     print('No objects detected')
+  else:
+    success = True
 
   for obj in objs:
-    print(labels.get(obj.id, obj.id))
-    print('  id:    ', obj.id)
-    print('  score: ', obj.score)
-    print('  bbox:  ', obj.bbox)
+    detection = {'predictions': [{'x_max': obj.bbox.xmax, 'x_min': obj.bbox.xmin, 'y_max': obj.bbox.ymax,  'y_min': obj.bbox.ymin, 'label': (labels.get(obj.id)), 'confidence': round((obj.score * 100)) }], 'success': success}
+    print(detection)
+    #print(labels.get(obj.id, obj.id))
+    #print('  id:    ', obj.id)
+    #print('  score: ', obj.score)
+    #print('  bbox:  ', obj.bbox)
     image = image.convert('RGB')
+
     draw_objects(ImageDraw.Draw(image), objs, labels)
     image.save(shinobi_image)
 #    image.show()
