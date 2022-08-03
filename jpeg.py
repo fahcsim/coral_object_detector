@@ -42,12 +42,10 @@ def draw_objects(draw, objs, labels):
   for obj in objs:
     bbox = obj.bbox
     draw.rectangle([(bbox.xmin, bbox.ymin), (bbox.xmax, bbox.ymax)],
-                   outline='red')
+                   outline='yellow')
     draw.text((bbox.xmin + 10, bbox.ymin + 10),
               '%s\n%.2f' % (labels.get(obj.id, obj.id), obj.score),
-              fill='red')
-
-
+              fill='yellow')
 
 def main():
   create_db_sqlite()

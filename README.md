@@ -11,3 +11,7 @@ shinobi_ip: 10.0.0.12:8080   # shinobi ip/port \
 object: person               # object to look for \
 interval: 5                  # how often to scan \
 log: info                    # logging level
+
+## Running with Docker
+1. Build the container `docker build -t coral_object_detector .`
+2. Run the container `sudo docker run --device /dev/apex_0:/dev/apex_0 -v /home/yourname/coral_object_detector:/python -it coral_object_detector`
