@@ -12,6 +12,12 @@ from pycoral.adapters import common
 from pycoral.adapters import detect
 from pycoral.utils.dataset import read_label_file
 from pycoral.utils.edgetpu import make_interpreter
+import sqlite3
+from create_db_sqlite import create_db_sqlite
+
+# Connect to sqlite database
+con = sqlite3.connect('data.db', isolation_level=None)
+cur = con.cursor()
 
 def grab_jpeg(directory,camera_friendly,shinobi_ip,api_key,group_key,camera_id):
   now = timestamp.now()
@@ -19,7 +25,7 @@ def grab_jpeg(directory,camera_friendly,shinobi_ip,api_key,group_key,camera_id):
   imgURL = ('http://' + shinobi_ip + '/' + api_key + '/jpeg/' + group_key + '/' + camera_id + '/s.jpg')
   try:
       urllib.request.urlretrieve(imgURL, filename)
-      return filename
+      return filename, now
   except:
       logging.info("no response from Shinobi, waiting 10 seconds. If the app is just starting up, this is fine to ignore")
       sleep(10)
@@ -27,7 +33,7 @@ def grab_jpeg(directory,camera_friendly,shinobi_ip,api_key,group_key,camera_id):
       filename = (directory + camera_friendly + now + '.jpeg')
       urllib.request.urlretrieve(imgURL, filename)
       print(filename)
-      return filename
+      return filename, now
 
 
 ########################################################
@@ -41,7 +47,10 @@ def draw_objects(draw, objs, labels):
               '%s\n%.2f' % (labels.get(obj.id, obj.id), obj.score),
               fill='red')
 
+
+
 def main():
+  create_db_sqlite()
   with open('vars.yaml') as f:
       data = yaml.load(f, Loader=yaml.FullLoader)
       api_key = data["api_key"]
@@ -59,11 +68,12 @@ def main():
       threshold = data["threshold"]
       count = data["count"]
   shinobi_image = grab_jpeg(directory,camera_friendly,shinobi_ip,api_key,group_key,camera_id)
+  print(shinobi_image[0])
   labels = read_label_file(labels) if labels else {}
   interpreter = make_interpreter(model)
   interpreter.allocate_tensors()
 
-  image = Image.open(shinobi_image)
+  image = Image.open(shinobi_image[0])
   _, scale = common.set_resized_input(
       interpreter, image.size, lambda size: image.resize(size, Image.ANTIALIAS))
 
@@ -79,17 +89,24 @@ def main():
   else:
     success = True
 
-  for obj in objs:
-    detection = {'predictions': [{'x_max': obj.bbox.xmax, 'x_min': obj.bbox.xmin, 'y_max': obj.bbox.ymax,  'y_min': obj.bbox.ymin, 'label': (labels.get(obj.id)), 'confidence': round((obj.score * 100)) }], 'success': success}
-    print(detection)
-    #print(labels.get(obj.id, obj.id))
-    #print('  id:    ', obj.id)
-    #print('  score: ', obj.score)
-    #print('  bbox:  ', obj.bbox)
-    image = image.convert('RGB')
+    for obj in objs:
+      confidence = round((obj.score * 100))
+      xmax = obj.bbox.xmax
+      xmin = obj.bbox.xmin
+      ymax =  obj.bbox.ymax
+      ymin = obj.bbox.ymin
+      label = (labels.get(obj.id))
+      filename = shinobi_image[0]
+      now = shinobi_image[1]
+      detection = {'predictions': [{'x_max': xmax, 'x_min': xmin, 'y_max': ymax,  'y_min': ymin, 'label': label, 'confidence': confidence }], 'success': success}
+      
+      print(detection)
+      image = image.convert('RGB')
+      draw_objects(ImageDraw.Draw(image), objs, labels)
+      image.save(shinobi_image[0])
+    ## Insert values into database
+      cur.execute("INSERT INTO DETECTIONS(LABEL, CONFIDENCE, Y_MIN, Y_MAX, X_MIN, X_MAX, CAMERA_ID, TIMESTAMP, FILENAME) VALUES (?,?,?,?,?,?,?,?,?)", (thing, confidence, ymin, ymax, xmin, xmax, camera_friendly, now, filename))
+      con.commit()
 
-    draw_objects(ImageDraw.Draw(image), objs, labels)
-    image.save(shinobi_image)
-#    image.show()
 if __name__ == '__main__':
   main()
