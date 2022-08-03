@@ -105,6 +105,6 @@ def main():
     ## Insert values into database
       cur.execute("INSERT INTO DETECTIONS(LABEL, CONFIDENCE, Y_MIN, Y_MAX, X_MIN, X_MAX, CAMERA_ID, TIMESTAMP, FILENAME) VALUES (?,?,?,?,?,?,?,?,?)", (thing, confidence, ymin, ymax, xmin, xmax, camera_friendly, now, filename))
       con.commit()
-
-if __name__ == '__main__':
-  main()
+while True:
+  if __name__ == '__main__':
+    main()
