@@ -13,7 +13,6 @@ from pycoral.adapters import detect
 from pycoral.utils.dataset import read_label_file
 from pycoral.utils.edgetpu import make_interpreter
 
-
 def grab_jpeg(directory,camera_friendly,shinobi_ip,api_key,group_key,camera_id):
   now = timestamp.now()
   filename = (directory + camera_friendly + now + '.jpeg')
@@ -29,8 +28,6 @@ def grab_jpeg(directory,camera_friendly,shinobi_ip,api_key,group_key,camera_id):
       urllib.request.urlretrieve(imgURL, filename)
       print(filename)
       return filename
-
-
 
 
 ########################################################
@@ -62,7 +59,6 @@ def main():
       threshold = data["threshold"]
       count = data["count"]
   shinobi_image = grab_jpeg(directory,camera_friendly,shinobi_ip,api_key,group_key,camera_id)
-
   labels = read_label_file(labels) if labels else {}
   interpreter = make_interpreter(model)
   interpreter.allocate_tensors()
@@ -70,7 +66,6 @@ def main():
   image = Image.open(shinobi_image)
   _, scale = common.set_resized_input(
       interpreter, image.size, lambda size: image.resize(size, Image.ANTIALIAS))
-
 
   for _ in range(count):
     start = time.perf_counter()
@@ -86,11 +81,9 @@ def main():
     print('  id:    ', obj.id)
     print('  score: ', obj.score)
     print('  bbox:  ', obj.bbox)
-
-  #if args.output:
-  #  image = image.convert('RGB')
-  #  draw_objects(ImageDraw.Draw(image), objs, labels)
-  #  image.save(args.output)
-  #  image.show()
+    image = image.convert('RGB')
+    draw_objects(ImageDraw.Draw(image), objs, labels)
+    image.save(shinobi_image)
+#    image.show()
 if __name__ == '__main__':
   main()
