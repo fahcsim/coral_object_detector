@@ -60,29 +60,7 @@ def draw_objects(draw, objs, labels):
               '%s\n%.2f' % (labels.get(obj.id, obj.id), obj.score),
               fill='yellow')
 
-def main():
-  create_db_sqlite()
-  with open('vars.yaml') as f:
-      data = yaml.load(f, Loader=yaml.FullLoader)
-      api_key = data["api_key"]
-      directory = data["directory"]
-      user_id = data["user_id"]
-      group_key = data["group_key"]
-      camera_id = data["camera_id"]
-      camera_friendly = data["camera_friendly"]
-      shinobi_ip = data["shinobi_ip"]
-      thing = data["object"]
-      log_level = data["log"]
-      interval = data["interval"]
-      model = data["model"]
-      labels = data["labels"]
-      threshold = data["threshold"]
-      count = data["count"]
-      logging.basicConfig()
-      logging.getLogger().setLevel(log_level)
-  reset_directories(directory)
-  shinobi_image = grab_jpeg(directory,camera_friendly,shinobi_ip,api_key,group_key,camera_id,log_level)
-
+def detect_object_coral(labels, model, shinobi_image, count, threshold, thing):
   labels = read_label_file(labels) if labels else {}
   interpreter = make_interpreter(model)
   interpreter.allocate_tensors()
@@ -118,9 +96,46 @@ def main():
       draw_objects(ImageDraw.Draw(image), objs, labels)
       image.save(filename)
       os.remove(filename_tmp)
+      return thing, confidence, ymin, ymax, xmin, xmax, now, filename, success
+def insert_row(thing, confidence, ymin, ymax, xmin, xmax, camera_friendly, now, filename):
     ## Insert values into database
       cur.execute("INSERT INTO DETECTIONS(LABEL, CONFIDENCE, Y_MIN, Y_MAX, X_MIN, X_MAX, CAMERA_ID, TIMESTAMP, FILENAME) VALUES (?,?,?,?,?,?,?,?,?)", (thing, confidence, ymin, ymax, xmin, xmax, camera_friendly, now, filename))
       con.commit()
+
+
+def main():
+  create_db_sqlite()
+  with open('vars.yaml') as f:
+      data = yaml.load(f, Loader=yaml.FullLoader)
+      api_key = data["api_key"]
+      directory = data["directory"]
+      user_id = data["user_id"]
+      group_key = data["group_key"]
+      camera_id = data["camera_id"]
+      camera_friendly = data["camera_friendly"]
+      shinobi_ip = data["shinobi_ip"]
+      thing = data["object"]
+      log_level = data["log"]
+      interval = data["interval"]
+      model = data["model"]
+      labels = data["labels"]
+      threshold = data["threshold"]
+      count = data["count"]
+      logging.basicConfig()
+      logging.getLogger().setLevel(log_level)
+  reset_directories(directory)
+  shinobi_image = grab_jpeg(directory,camera_friendly,shinobi_ip,api_key,group_key,camera_id,log_level)
+  detection = detect_object_coral(labels, model, shinobi_image, count, threshold, thing)
+  print(detection)
+  try:
+    thing, confidence, ymin, ymax, xmin, xmax, now, filename, success = detection[0], detection[1], detection[2], detection[3], detection[4], detection[5], detection[6], detection[7], detection[8]  
+    if success == True:
+       insert_row(thing, confidence, ymin, ymax, xmin, xmax, camera_friendly, now, filename)
+  except TypeError:
+    logging.debug(f"unable to load detection details, restarting")
+ 
+
+
 
 
 
@@ -132,3 +147,4 @@ while True:
 
 ## todo
 # create error page for web ui when there are no rows in database
+# nest config items under categories
