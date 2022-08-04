@@ -2,8 +2,10 @@ import urllib.request
 import socket
 import requests
 import os
+import shutil
 import yaml
 import time
+import logging
 import timestamp
 import argparse
 from PIL import Image
@@ -19,22 +21,27 @@ from create_db_sqlite import create_db_sqlite
 con = sqlite3.connect('data.db', isolation_level=None)
 cur = con.cursor()
 
-def check_directories(directory):
+def reset_directories(directory):
   if not os.path.exists(directory):
     os.mkdir(directory)
-  if not os.path.exists(f"{directory}/tmp"):
-    os.mkdir(f"{directory}/tmp")
+  if not os.path.exists(f"{directory}tmp"):
+    os.mkdir(f"{directory}tmp")
+  elif os.path.exists(f"{directory}tmp"):
+    # remove tmp directory and its contents, then recreate it
+    shutil.rmtree(f"{directory}tmp")
+    os.mkdir(f"{directory}tmp")
 
-def grab_jpeg(directory,camera_friendly,shinobi_ip,api_key,group_key,camera_id):
+def grab_jpeg(directory,camera_friendly,shinobi_ip,api_key,group_key,camera_id,log_level):
   now = timestamp.now()
   filename = (directory + camera_friendly + now + '.jpeg')
   filename_tmp = (directory + 'tmp/' + camera_friendly + now + '.jpeg')
+  logging.debug(f"Getting temporary jpeg from shinobi: {filename_tmp}")
   imgURL = ('http://' + shinobi_ip + '/' + api_key + '/jpeg/' + group_key + '/' + camera_id + '/s.jpg')
   try:
       urllib.request.urlretrieve(imgURL, filename_tmp)
       return filename, filename_tmp, now
   except:
-      logging.info("no response from Shinobi, waiting 10 seconds. If the app is just starting up, this is fine to ignore")
+      logging.warning("no response from Shinobi, waiting 10 seconds. If the app is just starting up, this is fine to ignore")
       sleep(10)
       self.now = timestamp.now()
       filename = (directory + camera_friendly + now + '.jpeg')
@@ -71,16 +78,17 @@ def main():
       labels = data["labels"]
       threshold = data["threshold"]
       count = data["count"]
-  check_directories(directory)
-  shinobi_image = grab_jpeg(directory,camera_friendly,shinobi_ip,api_key,group_key,camera_id)
+      logging.basicConfig()
+      logging.getLogger().setLevel(log_level)
+  reset_directories(directory)
+  shinobi_image = grab_jpeg(directory,camera_friendly,shinobi_ip,api_key,group_key,camera_id,log_level)
+
   labels = read_label_file(labels) if labels else {}
   interpreter = make_interpreter(model)
   interpreter.allocate_tensors()
-
   image = Image.open(shinobi_image[1])
   _, scale = common.set_resized_input(
       interpreter, image.size, lambda size: image.resize(size, Image.ANTIALIAS))
-
   for _ in range(count):
     start = time.perf_counter()
     interpreter.invoke()
@@ -89,11 +97,10 @@ def main():
   print('-------RESULTS--------')
   if not objs:
     success = False
-    print('No objects detected')
+    logging.debug(f"No objects detected, deleting {shinobi_image[1]}")
     os.remove(shinobi_image[1])
   else:
     success = True
-
     for obj in objs:
       confidence = round((obj.score * 100))
       xmax = obj.bbox.xmax
@@ -105,8 +112,8 @@ def main():
       filename_tmp = shinobi_image[1]
       now = shinobi_image[2]
       detection = {'predictions': [{'x_max': xmax, 'x_min': xmin, 'y_max': ymax,  'y_min': ymin, 'label': label, 'confidence': confidence }], 'success': success}
-      
-      print(detection)
+      logging.debug(f"Object Detected! File saved as {shinobi_image[0]}")
+      logging.debug(f"Detection details: {detection}")
       image = image.convert('RGB')
       draw_objects(ImageDraw.Draw(image), objs, labels)
       image.save(filename)
@@ -114,11 +121,14 @@ def main():
     ## Insert values into database
       cur.execute("INSERT INTO DETECTIONS(LABEL, CONFIDENCE, Y_MIN, Y_MAX, X_MIN, X_MAX, CAMERA_ID, TIMESTAMP, FILENAME) VALUES (?,?,?,?,?,?,?,?,?)", (thing, confidence, ymin, ymax, xmin, xmax, camera_friendly, now, filename))
       con.commit()
-      
+
+
+
+
 while True:
   if __name__ == '__main__':
     main()
     time.sleep(5)
 
 ## todo
-# make sure photo/tmp is added automatically
+# create error page for web ui when there are no rows in database
