@@ -1,5 +1,4 @@
-from PIL import Image
-from PIL import ImageDraw
+from PIL import Image, ImageDraw, ImageFont
 from pycoral.adapters import common
 from pycoral.adapters import detect
 from pycoral.utils.dataset import read_label_file
@@ -40,8 +39,6 @@ def detect_object_coral(labels, model, shinobi_image, count, threshold, thing):
       detection = {'predictions': [{'x_max': xmax, 'x_min': xmin, 'y_max': ymax,  'y_min': ymin, 'label': label, 'confidence': confidence }], 'success': success}
       logging.debug(f"Object Detected! File saved as {shinobi_image[0]}")
       logging.debug(f"Detection details: {detection}")
-      image = image.convert('RGB')
-      draw_objects(ImageDraw.Draw(image), objs, labels)
-      image.save(filename)
+      draw_objects(objs, shinobi_image, label)
       os.remove(filename_tmp)
       return thing, confidence, ymin, ymax, xmin, xmax, now, filename, success
