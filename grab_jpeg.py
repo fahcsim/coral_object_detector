@@ -9,6 +9,7 @@ def grab_jpeg(directory,camera_friendly,shinobi_ip,api_key,group_key,camera_id,l
   filename_tmp = (directory + 'tmp/' + camera_friendly + now + '.jpeg')
   logging.debug(f"Getting temporary jpeg from shinobi: {filename_tmp}")
   imgURL = ('http://' + shinobi_ip + '/' + api_key + '/jpeg/' + group_key + '/' + camera_id + '/s.jpg')
+  logging.debug(f"image URL is {imgURL}")
   try:
       urllib.request.urlretrieve(imgURL, filename_tmp)
       return filename, filename_tmp, now

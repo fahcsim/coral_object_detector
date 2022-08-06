@@ -15,8 +15,7 @@ from pycoral.utils.edgetpu import make_interpreter
 import sqlite3
 # import local modules
 import timestamp
-from detect_object_coral import detect_object_coral
-from detect_object_deepstack import detect_object_deepstack
+from detect_object import detect_object_deepstack, detect_object_coral
 from create_db_sqlite import create_db_sqlite
 from grab_jpeg import grab_jpeg
 from reset_directories import reset_directories
@@ -49,14 +48,27 @@ def main():
       count = data["count"]
       deepstack_url = data["deepstack_url"]
       method = data["method"]
+      try: bypass_mode = data["bypass_mode"]
+      except NameError: bypass_mode = False
+      try: bypass_image = data["bypass_image"]
+      except NameError: bypass_image = null    
       logging.basicConfig()
       logging.getLogger().setLevel(log_level)
   reset_directories(directory)
-  shinobi_image = grab_jpeg(directory,camera_friendly,shinobi_ip,api_key,group_key,camera_id,log_level)
+
+  if bypass_mode == True and bypass_image != "null":
+    now = timestamp.now()
+    bypass_image_temp = f"{directory}tmp/tmp-{now}"
+    shutil.copyfile(bypass_image, bypass_image_temp)
+    filename = (directory + camera_friendly + now + '.jpeg')
+    shinobi_image =  [filename, bypass_image_temp, now]
+    
+  else:
+    shinobi_image = grab_jpeg(directory,camera_friendly,shinobi_ip,api_key,group_key,camera_id,log_level)
   if method == "coral":
     detection = detect_object_coral(labels, model, shinobi_image, count, threshold, object)
   elif method == "deepstack":
-    detection = detect_object_deepstack(deepstack_url, shinobi_image, object)    
+    detection = detect_object_deepstack(deepstack_url, shinobi_image, object)
   print(detection)
   try:
     object, confidence, ymin, ymax, xmin, xmax, now, filename, success = detection[0], detection[1], detection[2], detection[3], detection[4], detection[5], detection[6], detection[7], detection[8]  
@@ -73,3 +85,4 @@ while True:
 ## todo
 # create error page for web ui when there are no rows in database
 # nest config items under categories
+# test mode with local jpeg
