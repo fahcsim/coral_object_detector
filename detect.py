@@ -56,20 +56,20 @@ def main():
       logging.getLogger().setLevel(log_level)
   reset_directories(directory)
 
+# Bypass mode allows you to use a static jpeg file instead of getting them from shinobi.
+# Useful for testing, not really useful for detecting actual objects
   if bypass_mode == True and bypass_image != "null":
     now = timestamp.now()
     bypass_image_temp = f"{directory}tmp/tmp-{now}"
     shutil.copyfile(bypass_image, bypass_image_temp)
     filename = (directory + camera_friendly + now + '.jpeg')
     shinobi_image =  [filename, bypass_image_temp, now]
-    
   else:
     shinobi_image = grab_jpeg(directory,camera_friendly,shinobi_ip,api_key,group_key,camera_id,log_level)
   if method == "coral":
     detection = detect_object_coral(labels, model, shinobi_image, count, threshold, object)
   elif method == "deepstack":
     detection = detect_object_deepstack(deepstack_url, shinobi_image, object)
-  print(detection)
   try:
     object, confidence, ymin, ymax, xmin, xmax, now, filename, success = detection[0], detection[1], detection[2], detection[3], detection[4], detection[5], detection[6], detection[7], detection[8]  
     if success == True:
@@ -83,6 +83,7 @@ while True:
     time.sleep(5)
 
 ## todo
+# set up confidence variable
 # create error page for web ui when there are no rows in database
 # nest config items under categories
-# test mode with local jpeg
+# test multi camera setup

@@ -76,7 +76,8 @@ def detect_object_deepstack(deepstack_url, shinobi_image, object):
         draw_objects_deepstack(response, shinobi_image, label_index)
         os.remove(shinobi_image[1])
         object = response['predictions'][label_index]['label']
-        logging.debug(f"Detection from deepstack is: {object}")
+        detection = {'predictions': [{'x_max': xmax, 'x_min': xmin, 'y_max': ymax,  'y_min': ymin, 'label': object, 'confidence': confidence }], 'success': success}
+        logging.debug(f"Detection details: {detection}")
         success = True
         now = shinobi_image[2]
         return object, confidence, ymin, ymax, xmin, xmax, now, shinobi_image[1], success

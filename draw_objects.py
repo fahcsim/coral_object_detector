@@ -18,10 +18,8 @@ def draw_objects_coral(objs, shinobi_image, label): # fix this up so that we're 
     img1.line(right, fill ="yellow", width = 5)
     img1.line(bottom, fill ="yellow", width = 5)
     font = ImageFont.truetype("qaz.ttf", 35)
-    logging.debug(f"object is {label}")
     img1.text((xmax - 100, ymax - 200), label, (155, 250, 0), font)
     img.save(shinobi_image[0])
-
 
 def draw_objects_deepstack(response, shinobi_image, label_index):
   xmin = response['predictions'][label_index]['x_min']
