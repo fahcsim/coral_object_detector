@@ -138,4 +138,4 @@ async def read_item(request: Request, filename: str):
 def get_all_urls():
     url_list = (os.listdir('photos'))
     next = url_list[(len(url_list)-1)]
-    return 
+    return next

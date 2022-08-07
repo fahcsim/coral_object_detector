@@ -31,21 +31,27 @@ def detect_object_coral(labels, model, shinobi_image, count, threshold, thing):
   else:
     success = True
     for obj in objs:
-      confidence = round((obj.score * 100))
-      xmax = obj.bbox.xmax
-      xmin = obj.bbox.xmin
-      ymax =  obj.bbox.ymax
-      ymin = obj.bbox.ymin
       label = (labels.get(obj.id))
-      filename = shinobi_image[0]
-      filename_tmp = shinobi_image[1]
-      now = shinobi_image[2]
-      detection = {'predictions': [{'x_max': xmax, 'x_min': xmin, 'y_max': ymax,  'y_min': ymin, 'label': label, 'confidence': confidence }], 'success': success}
-      logging.debug(f"Object Detected! File saved as {shinobi_image[0]}")
-      logging.debug(f"Detection details: {detection}")
-      draw_objects_coral(objs, shinobi_image, label)
-      os.remove(filename_tmp)
-      return thing, confidence, ymin, ymax, xmin, xmax, now, filename, success
+      if label == thing:      
+        confidence = round((obj.score * 100))
+        xmax = obj.bbox.xmax
+        xmin = obj.bbox.xmin
+        ymax =  obj.bbox.ymax
+        ymin = obj.bbox.ymin
+  
+        filename = shinobi_image[0]
+        filename_tmp = shinobi_image[1]
+        now = shinobi_image[2]
+        detection = {'predictions': [{'x_max': xmax, 'x_min': xmin, 'y_max': ymax,  'y_min': ymin, 'label': label, 'confidence': confidence }], 'success': success}
+        logging.debug(f"Object Detected! File saved as {shinobi_image[0]}")
+        logging.debug(f"Detection details: {detection}")
+        draw_objects_coral(objs, shinobi_image, label)
+        os.remove(filename_tmp)
+        return thing, confidence, ymin, ymax, xmin, xmax, now, filename, success
+      else:
+        success = False
+        logging.debug(f"No objects detected, deleting {shinobi_image[1]}")
+        os.remove(shinobi_image[1])        
 
 def detect_object_deepstack(deepstack_url, shinobi_image, object):
   image_data = open(shinobi_image[1],"rb").read()
