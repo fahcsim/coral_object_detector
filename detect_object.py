@@ -56,7 +56,7 @@ def detect_object_deepstack(deepstack_url, shinobi_image, object):
   except KeyError:
       logging.warning("invalid response from deepstack, waiting 10 seconds and trying again")
       sleep(10)
-      response = requests.post(f"http://{deepstack_url}:5000/v1/vision/detection",files={"image":image_data}).json()
+      response = requests.post(f"http://{deepstack_url}:5000/v1/vision/detection",files={"image":image_data},min_confidence={threshold}).json()
       pred = iter(response['predictions'])
   while True:
     try:
@@ -77,7 +77,7 @@ def detect_object_deepstack(deepstack_url, shinobi_image, object):
         os.remove(shinobi_image[1])
         object = response['predictions'][label_index]['label']
         detection = {'predictions': [{'x_max': xmax, 'x_min': xmin, 'y_max': ymax,  'y_min': ymin, 'label': object, 'confidence': confidence }], 'success': success}
-        logging.debug(f"Detection details: {detection}")
+        logging.debug(f"Detection details: {response}")
         success = True
         now = shinobi_image[2]
         return object, confidence, ymin, ymax, xmin, xmax, now, shinobi_image[1], success

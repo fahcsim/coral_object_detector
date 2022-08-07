@@ -49,9 +49,9 @@ def main():
       deepstack_url = data["deepstack_url"]
       method = data["method"]
       try: bypass_mode = data["bypass_mode"]
-      except NameError: bypass_mode = False
+      except KeyError: bypass_mode = False
       try: bypass_image = data["bypass_image"]
-      except NameError: bypass_image = null    
+      except KeyError: bypass_image = "null"    
       logging.basicConfig()
       logging.getLogger().setLevel(log_level)
   reset_directories(directory)
