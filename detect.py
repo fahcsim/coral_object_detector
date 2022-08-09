@@ -21,6 +21,7 @@ from create_db_sqlite import create_db_sqlite
 from grab_jpeg import grab_jpeg
 from reset_directories import reset_directories
 
+
 # Connect to sqlite database
 con = sqlite3.connect('data.db', isolation_level=None)
 cur = con.cursor()
@@ -72,6 +73,7 @@ def main():
       shinobi_image = grab_jpeg(directory,camera_friendly,shinobi_ip,api_key,group_key,camera_id,log_level)
     if method == "coral":
       detection = detect_object_coral(labels, model, shinobi_image, count, threshold, object)
+      logging.debug(f"time is {timestamp.now()}")
     elif method == "deepstack":
       detection = detect_object_deepstack(deepstack_url, shinobi_image, object)
     try:
