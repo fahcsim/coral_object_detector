@@ -7,7 +7,8 @@ import yaml
 import time
 import logging
 import argparse
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFont, ImageFile
+from PIL import UnidentifiedImageError
 from pycoral.adapters import common
 from pycoral.adapters import detect
 from pycoral.utils.dataset import read_label_file

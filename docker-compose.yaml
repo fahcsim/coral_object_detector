@@ -5,7 +5,7 @@ services:
     image: coral
     container_name: detector
     devices:
-      - /dev/apex_0:/dev/apex_0 o 
+      - /dev/apex_0:/dev/apex_0
     environment:
       - TZ=America/Los_Angles
     volumes:
