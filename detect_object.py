@@ -13,8 +13,9 @@ from pycoral.adapters import detect
 from pycoral.utils.dataset import read_label_file
 from pycoral.utils.edgetpu import make_interpreter
 ImageFile.LOAD_TRUNCATED_IMAGES = True
+import asyncio
 
-def detect_object_coral(labels, model, shinobi_image, count, threshold, thing):
+async def detect_object_coral(labels, model, shinobi_image, count, threshold, thing):
   labels = read_label_file(labels) if labels else {}
   interpreter = make_interpreter(model)
   interpreter.allocate_tensors()
@@ -72,7 +73,7 @@ def detect_object_coral(labels, model, shinobi_image, count, threshold, thing):
               logging.debug(f"unable to delete {shinobi_image[1]}")
 
 
-def detect_object_deepstack(deepstack_url, shinobi_image, object):
+async def detect_object_deepstack(deepstack_url, shinobi_image, object):
   image_data = open(shinobi_image[1],"rb").read()
   response = requests.post(f"http://{deepstack_url}:5000/v1/vision/detection",files={"image":image_data}).json()
   label_index = -1

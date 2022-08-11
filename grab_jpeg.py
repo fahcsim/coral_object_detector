@@ -3,7 +3,8 @@ import urllib.request
 import socket
 import requests
 import timestamp
-def grab_jpeg(directory,camera_friendly,shinobi_ip,api_key,group_key,camera_id,log_level):
+import asyncio
+async def grab_jpeg(directory,camera_friendly,shinobi_ip,api_key,group_key,camera_id,log_level):
   now = timestamp.now()
   filename = (directory + camera_friendly + now + '.jpeg')
   filename_tmp = (directory + 'tmp/' + camera_friendly + now + '.jpeg')

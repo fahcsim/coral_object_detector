@@ -20,17 +20,17 @@ from detect_object import detect_object_deepstack, detect_object_coral
 from create_db_sqlite import create_db_sqlite
 from grab_jpeg import grab_jpeg
 from reset_directories import reset_directories
-
+import asyncio
 
 # Connect to sqlite database
 con = sqlite3.connect('data.db', isolation_level=None)
 cur = con.cursor()
 
-def insert_row(object, confidence, ymin, ymax, xmin, xmax, camera_friendly, now, filename):
-  cur.execute("INSERT INTO DETECTIONS(LABEL, CONFIDENCE, Y_MIN, Y_MAX, X_MIN, X_MAX, CAMERA_ID, TIMESTAMP, FILENAME) VALUES (?,?,?,?,?,?,?,?,?)", (object, confidence, ymin, ymax, xmin, xmax, camera_friendly, now, filename))
+async def insert_row(object, confidence, ymin, ymax, xmin, xmax, camera_friendly, now, filename):
+  await cur.execute("INSERT INTO DETECTIONS(LABEL, CONFIDENCE, Y_MIN, Y_MAX, X_MIN, X_MAX, CAMERA_ID, TIMESTAMP, FILENAME) VALUES (?,?,?,?,?,?,?,?,?)", (object, confidence, ymin, ymax, xmin, xmax, camera_friendly, now, filename))
   con.commit()
 
-def main():
+async def main():
   create_db_sqlite()
   ## Get variables from yaml config file
   with open('vars.yaml') as f:
@@ -70,16 +70,17 @@ def main():
       filename = (directory + camera_friendly + now + '.jpeg')
       shinobi_image =  [filename, bypass_image_temp, now]
     else:
-      shinobi_image = grab_jpeg(directory,camera_friendly,shinobi_ip,api_key,group_key,camera_id,log_level)
+      shinobi_image = await grab_jpeg(directory,camera_friendly,shinobi_ip,api_key,group_key,camera_id,log_level)
     if method == "coral":
-      detection = detect_object_coral(labels, model, shinobi_image, count, threshold, object)
+      detection = await detect_object_coral(labels, model, shinobi_image, count, threshold, object)
       logging.debug(f"time is {timestamp.now()}")
     elif method == "deepstack":
-      detection = detect_object_deepstack(deepstack_url, shinobi_image, object)
+      detection = await detect_object_deepstack(deepstack_url, shinobi_image, object)
     try:
       object, confidence, ymin, ymax, xmin, xmax, now, filename, success = detection[0], detection[1], detection[2], detection[3], detection[4], detection[5], detection[6], detection[7], detection[8]  
       if success == True:
-         insert_row(object, confidence, ymin, ymax, xmin, xmax, camera_friendly, now, filename)
+        await insert_row(object, confidence, ymin, ymax, xmin, xmax, camera_friendly, now, filename)
+
       
     except TypeError:
       logging.debug(f"unable to load detection details, restarting")
@@ -87,8 +88,7 @@ def main():
  
 while True:
   if __name__ == '__main__':
-    main()
-    time.sleep(5)
+    asyncio.run(main())
 
 ## todo
 # set up confidence variable
