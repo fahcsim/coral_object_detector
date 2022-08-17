@@ -15,7 +15,7 @@ from pycoral.utils.edgetpu import make_interpreter
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 import asyncio
 
-async def detect_object_coral(labels, model, shinobi_image, count, threshold, thing):
+async def detect_object_coral(labels, model, shinobi_image, count, threshold, thing, add_labels):
   labels = read_label_file(labels) if labels else {}
   interpreter = make_interpreter(model)
   interpreter.allocate_tensors()
@@ -60,7 +60,7 @@ async def detect_object_coral(labels, model, shinobi_image, count, threshold, th
             detection = {'predictions': [{'x_max': xmax, 'x_min': xmin, 'y_max': ymax,  'y_min': ymin, 'label': label, 'confidence': confidence }], 'success': success}
             logging.debug(f"Object Detected! File saved as {shinobi_image[0]}")
             logging.debug(f"Detection details: {detection}")
-            draw_objects_coral(objs, shinobi_image, label)
+            draw_objects_coral(objs, shinobi_image, label, add_labels)
             #os.remove(filename_tmp)
             return thing, confidence, ymin, ymax, xmin, xmax, now, filename, success
           else:
@@ -73,7 +73,7 @@ async def detect_object_coral(labels, model, shinobi_image, count, threshold, th
               logging.debug(f"unable to delete {shinobi_image[1]}")
 
 
-async def detect_object_deepstack(deepstack_url, shinobi_image, object):
+async def detect_object_deepstack(deepstack_url, shinobi_image, object, add_labels):
   image_data = open(shinobi_image[1],"rb").read()
   response = requests.post(f"http://{deepstack_url}:5000/v1/vision/detection",files={"image":image_data}).json()
   label_index = -1
@@ -99,7 +99,7 @@ async def detect_object_deepstack(deepstack_url, shinobi_image, object):
         ymax = response['predictions'][label_index]['y_max']
         logging.debug(f"confidence is {confidence}")
         # create variables for square boundaries
-        draw_objects_deepstack(response, shinobi_image, label_index)
+        draw_objects_deepstack(response, shinobi_image, label_index, add_labels)
         os.remove(shinobi_image[1])
         success = True
         object = response['predictions'][label_index]['label']

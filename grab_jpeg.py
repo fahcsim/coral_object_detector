@@ -15,8 +15,8 @@ async def grab_jpeg(directory,camera_friendly,shinobi_ip,api_key,group_key,camer
       urllib.request.urlretrieve(imgURL, filename_tmp)
       return filename, filename_tmp, now
   except:
-      logging.warning("no response from Shinobi, waiting 10 seconds. If the app is just starting up, this is fine to ignore")
-      sleep(10)
+      logging.warning("no response from Shinobi, waiting 1 second. If the app is just starting up, this is fine to ignore")
+      sleep(1)
       self.now = timestamp.now()
       filename = (directory + camera_friendly + now + '.jpeg')
       filename_tmp = (directory + '/tmp/' + camera_friendly + now + '.jpeg')

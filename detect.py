@@ -27,11 +27,11 @@ con = sqlite3.connect('data.db', isolation_level=None)
 cur = con.cursor()
 
 async def insert_row(object, confidence, ymin, ymax, xmin, xmax, camera_friendly, now, filename):
-  await cur.execute("INSERT INTO DETECTIONS(LABEL, CONFIDENCE, Y_MIN, Y_MAX, X_MIN, X_MAX, CAMERA_ID, TIMESTAMP, FILENAME) VALUES (?,?,?,?,?,?,?,?,?)", (object, confidence, ymin, ymax, xmin, xmax, camera_friendly, now, filename))
+  await cur.execute('INSERT INTO ' + camera_friendly +'(LABEL, CONFIDENCE, Y_MIN, Y_MAX, X_MIN, X_MAX, CAMERA_ID, TIMESTAMP, FILENAME) VALUES (?,?,?,?,?,?,?,?,?)', (object, confidence, ymin, ymax, xmin, xmax, camera_friendly, now, filename))
   con.commit()
 
 async def main():
-  create_db_sqlite()
+  
   ## Get variables from yaml config file
   with open('vars.yaml') as f:
     data = yaml.load(f, Loader=yaml.FullLoader)
@@ -51,6 +51,15 @@ async def main():
   except KeyError: bypass_mode = False
   try: bypass_image = data["bypass_image"]
   except KeyError: bypass_image = "null"    
+  try: add_labels = data["add_labels"]
+  except KeyError: bypass_image = "null"
+  cameras_list = []
+  for camera in data["cameras"]:
+    camera_friendly = camera
+    cameras_list.append(camera)
+
+  logging.debug(f"cameras are {cameras_list}")
+  create_db_sqlite(cameras_list, log_level)
   for camera in data["cameras"]:
     camera_friendly = camera
     camera_id = data["cameras"][camera]["camera_id"]
@@ -59,8 +68,7 @@ async def main():
     count = data["cameras"][camera]["count"]
     interval = data["cameras"][camera]["interval"]
     method = data["cameras"][camera]["method"]
-
-  
+    
   # Bypass mode allows you to use a static jpeg file instead of getting them from shinobi.
   # Useful for testing, not really useful for detecting actual objects
     if bypass_mode == True and bypass_image != "null":
@@ -72,10 +80,10 @@ async def main():
     else:
       shinobi_image = await grab_jpeg(directory,camera_friendly,shinobi_ip,api_key,group_key,camera_id,log_level)
     if method == "coral":
-      detection = await detect_object_coral(labels, model, shinobi_image, count, threshold, object)
+      detection = await detect_object_coral(labels, model, shinobi_image, count, threshold, object, add_labels)
       logging.debug(f"time is {timestamp.now()}")
     elif method == "deepstack":
-      detection = await detect_object_deepstack(deepstack_url, shinobi_image, object)
+      detection = await detect_object_deepstack(deepstack_url, shinobi_image, object, add_labels)
     try:
       object, confidence, ymin, ymax, xmin, xmax, now, filename, success = detection[0], detection[1], detection[2], detection[3], detection[4], detection[5], detection[6], detection[7], detection[8]  
       if success == True:
