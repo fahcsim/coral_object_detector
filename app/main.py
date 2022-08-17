@@ -19,8 +19,8 @@ api_router = APIRouter()
 async def database_connect():
     await database.connect()
 
-async def fetch_data():
-    query = "SELECT oid,timestamp,label,confidence,filename FROM DETECTIONS ORDER BY timestamp DESC LIMIT 0,1"
+async def fetch_data(table):
+    query = 'SELECT oid,timestamp,label,confidence,filename FROM ' + table + ' ORDER BY timestamp DESC LIMIT 0,1'
     results = await database.fetch_all(query=query)
     return results
 
@@ -29,17 +29,16 @@ async def fetch_data():
 async def database_disconnect():
     await database.disconnect()
 
-@app.get("/detection/latest", response_class=HTMLResponse)
+@app.get("/{camera}/detection/latest", response_class=HTMLResponse)
 
-async def latest(request: Request):
-    #fetch_data_response = await fetch_data()
-    fetch_data_response = await fetch_data()
+async def latest(request: Request, camera: str):
+    fetch_data_response = await fetch_data(camera)
     oid = fetch_data_response[0][0]
     timestamp = fetch_data_response[0][1]
     label = fetch_data_response[0][2]
     confidence = "{:.0%}".format(fetch_data_response[0][3])
     filename = fetch_data_response[0][4].lstrip(".")
-    next = await get_next(oid)
+    next = await get_next(oid, camera)
     next_oid = int(next[0])
     if str(next[1]) == "none":
         next_filename = filename.lstrip("./photos")
@@ -52,12 +51,12 @@ async def latest(request: Request):
         previous_filename = str(next[3])
     return templates.TemplateResponse("detection_template.html", {"request": request, "filename": filename, "label": label, "confidence": confidence, "timestamp": timestamp, "oid": oid, "next_filename": next_filename, "previous_oid": previous_oid, "previous_filename": previous_filename})
 
-async def get_next(oid):
+async def get_next(oid, camera):
     id = oid
     await database.connect()
     METADATA = MetaData()
-    detections = Table(
-        "detections",
+    camera_table = Table(
+        camera,
         METADATA,
         Column("oid", Integer, primary_key=True),
         Column("label", String),
@@ -70,8 +69,8 @@ async def get_next(oid):
         Column("timestamp", String),
         Column("filename", String),
     )
-    next_query = detections.select().where(detections.c.oid == (id + 1))
-    previous_query = detections.select().where(detections.c.oid == (id - 1))
+    next_query = camera_table.select().where(camera_table.c.oid == (id + 1))
+    previous_query = camera_table.select().where(camera_table.c.oid == (id - 1))
     rows = await database.fetch_all(next_query)
     try: 
         next_oid = rows[0][0]
@@ -94,11 +93,11 @@ async def get_next(oid):
 
 @app.get("/detection/{filename}", response_class=HTMLResponse)
 
-async def read_item(request: Request, filename: str):
+async def read_item(request: Request, filename: str, camera: str):
     await database.connect()
     METADATA = MetaData()
-    detections = Table(
-        "detections",
+    camera_table = Table(
+        camera,
         METADATA,
         Column("oid", Integer, primary_key=True),
         Column("label", String),
@@ -111,14 +110,14 @@ async def read_item(request: Request, filename: str):
         Column("timestamp", String),
         Column("filename", String),
     )
-    query = detections.select().where(detections.c.filename == ("./photos/" + filename))
+    query = camera_table.select().where(camera_table.c.filename == ('./photos/' + filename))
     rows = await database.fetch_all(query)
     oid = int(rows[0][0])
     timestamp = str(rows[0][8])
     label = str(rows[0][2])
     confidence = str("{:.0%}".format(rows[0][2]))
     filename = str(rows[0][9].lstrip("."))
-    next = await get_next(oid)
+    next = await get_next(oid, camera)
     next_oid = int(next[0])
     if str(next[1]) == "none":
         next_filename = filename.lstrip("./photos")
