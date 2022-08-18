@@ -134,7 +134,7 @@ async def read_item(request: Request, filename: str, camera: str):
         previous_filename = filename
     else:
         previous_filename = str(next[3])
-    return templates.TemplateResponse("detection_template.html", {"request": request, "filename": filename, "label": label, "confidence": confidence, "timestamp": timestamp, "oid": oid, "next_filename": next_filename, "previous_oid": previous_oid, "previous_filename": previous_filename})
+    return templates.TemplateResponse("detection_template.html", {"request": request, "filename": filename, "label": label, "confidence": confidence, "timestamp": timestamp, "oid": oid, "next_filename": next_filename, "previous_oid": previous_oid, "previous_filename": previous_filename, "camera": camera})
 
 #@app.get("/test",  response_class=HTMLResponse)
 
