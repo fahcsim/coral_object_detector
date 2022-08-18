@@ -75,6 +75,7 @@ async def latest(request: Request, camera: str):
     return templates.TemplateResponse("detection_template.html", {"request": request, "filename": filename, "label": label, "confidence": confidence, "timestamp": timestamp, "oid": oid, "next_filename": next_filename, "previous_oid": previous_oid, "previous_filename": previous_filename, "camera": camera, "cameras_list": cameras_list})
 
 async def get_next(oid, camera):
+
     id = oid
     await database.connect()
     METADATA = MetaData()
@@ -117,6 +118,15 @@ async def get_next(oid, camera):
 @app.get("/{camera}/detection/{filename}", response_class=HTMLResponse)
 
 async def read_item(request: Request, filename: str, camera: str):
+################################
+# clean up list of cameras
+################################
+    cameras_list = await get_cameras()
+    camera_names = []
+    for name in cameras_list:
+        camera_name = re.sub(r'\'\,\)', '', re.sub(r'\(\'', '', str(name)))
+        logging.debug(camera_name)
+        camera_names.append(camera_name)
     await database.connect()
     METADATA = MetaData()
     camera_table = Table(
@@ -151,7 +161,7 @@ async def read_item(request: Request, filename: str, camera: str):
         previous_filename = filename
     else:
         previous_filename = str(next[3])
-    return templates.TemplateResponse("detection_template.html", {"request": request, "filename": filename, "label": label, "confidence": confidence, "timestamp": timestamp, "oid": oid, "next_filename": next_filename, "previous_oid": previous_oid, "previous_filename": previous_filename, "camera": camera})
+    return templates.TemplateResponse("detection_template.html", {"request": request, "filename": filename, "label": label, "confidence": confidence, "timestamp": timestamp, "oid": oid, "next_filename": next_filename, "previous_oid": previous_oid, "previous_filename": previous_filename, "camera": camera, "cameras_list": cameras_list})
 
 #@app.get("/test",  response_class=HTMLResponse)
 
