@@ -9,10 +9,10 @@ import logging
 import argparse
 from PIL import Image, ImageDraw, ImageFont, ImageFile
 from PIL import UnidentifiedImageError
-from pycoral.adapters import common
-from pycoral.adapters import detect
-from pycoral.utils.dataset import read_label_file
-from pycoral.utils.edgetpu import make_interpreter
+#from pycoral.adapters import common
+#from pycoral.adapters import detect
+#from pycoral.utils.dataset import read_label_file
+#from pycoral.utils.edgetpu import make_interpreter
 import sqlite3
 # import local modules
 import timestamp

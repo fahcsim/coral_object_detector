@@ -8,8 +8,8 @@ from sqlalchemy import Column, Integer, MetaData, String, Table, select
 import os
 import logging
 logging.basicConfig()
-logging.getLogger().setLevel("DEBUG")
-
+logging.getLogger().setLevel("INFO")
+import re
 templates = Jinja2Templates(directory="templates")
 database = Database("sqlite:///data.db")
 app = FastAPI()
@@ -28,6 +28,11 @@ async def fetch_data(camera):
     results = await database.fetch_all(query=query)
     return results
 
+async def get_cameras():
+    query = "SELECT name FROM sqlite_master WHERE type='table' ORDER BY name"
+    results = await database.fetch_all(query=query)
+    return results
+
 
 @app.on_event("shutdown")
 async def database_disconnect():
@@ -36,7 +41,18 @@ async def database_disconnect():
 @app.get("/{camera}/detection/latest", response_class=HTMLResponse)
 
 async def latest(request: Request, camera: str):
-    logging.debug(camera)
+################################
+# clean up list of cameras
+################################
+    cameras_list = await get_cameras()
+    camera_names = []
+    for name in cameras_list:
+        camera_name = re.sub(r'\'\,\)', '', re.sub(r'\(\'', '', str(name)))
+        logging.debug(camera_name)
+        camera_names.append(camera_name)
+####################################
+# Get data from sqlite
+################################
     fetch_data_response = await fetch_data(camera)
     oid = fetch_data_response[0][0]
     timestamp = fetch_data_response[0][1]
@@ -46,6 +62,7 @@ async def latest(request: Request, camera: str):
     next = await get_next(oid, camera)
     next_oid = int(next[0])
     camera = camera
+##################################
     if str(next[1]) == "none":
         next_filename = filename.lstrip("./photos")
     else:
@@ -55,7 +72,7 @@ async def latest(request: Request, camera: str):
         previous_filename = filename
     else:
         previous_filename = str(next[3])
-    return templates.TemplateResponse("detection_template.html", {"request": request, "filename": filename, "label": label, "confidence": confidence, "timestamp": timestamp, "oid": oid, "next_filename": next_filename, "previous_oid": previous_oid, "previous_filename": previous_filename, "camera": camera})
+    return templates.TemplateResponse("detection_template.html", {"request": request, "filename": filename, "label": label, "confidence": confidence, "timestamp": timestamp, "oid": oid, "next_filename": next_filename, "previous_oid": previous_oid, "previous_filename": previous_filename, "camera": camera, "cameras_list": cameras_list})
 
 async def get_next(oid, camera):
     id = oid

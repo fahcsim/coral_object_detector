@@ -50,6 +50,9 @@
             <button class="button"><a class="link", href="../../{{  camera  }}/detection/latest">Latest</a></button>
             <button class="button"><a href="{{  previous_filename  }}">Previous</a></button>
             <button class="button"><a href="{{  next_filename  }}">Next</a></button>
+            {% for camera_name in cameras_list %}
+            <button class="button"><a href="../../{{  camera_name | replace ("('","")  | replace ("',)","")  }}/detection/latest">{{  camera_name | replace ("('","")  | replace ("',)","")  }}</a></button
+            {% endfor %}
 
          </aside>
       </div>
