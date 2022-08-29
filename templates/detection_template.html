@@ -1,62 +1,114 @@
 <html>
    <head>
-   
       <style>
-        body {
-            font: 600 14px/24px "Open Sans", 
-               "HelveticaNeue-Light", 
-               "Helvetica Neue Light", 
-               "Helvetica Neue", 
-               Helvetica, Arial, 
-               "Lucida Grande", 
-               Sans-Serif;
-               background-color: #000000;
-         }
-        .container {
-            display: flex;
-            align-items: center;
 
-            max-width: 90%;
-        }
-        .picture {
-            width: 95%;
-        }
-
-        .button {
-            flex-grow: 1;
+        .container {  display: grid;
+            grid-template-columns: 0.3fr 1.7fr 1fr;
+            grid-template-rows: 1fr 1.8fr 0.2fr;
+            gap: 0px 0px;
             width: 100%;
-            background-color: #4f920d;
+            height: 100%;
+            margin: 0;
+            grid-auto-flow: row;
+            grid-template-areas:
+              "side_navigation photo photo"
+              "side_navigation photo photo"
+              "side_navigation bottom_navigation bottom_navigation";
+          }
+          
+          .side_navigation { grid-area: side_navigation; }
+          
+          .photo { 
+              grid-area: photo; 
+              height: 100%;
+            }
+          .picture {
+              height: 100%;
+              width: 100%;
+          }
+          
+          .bottom_navigation { grid-area: bottom_navigation; }
+          .vertical-menu {
+            width: 200px; /* Set a width if you like */
+          }
+          
+          .vertical-menu a {
+            background-color: #eee; /* Grey background color */
+            color: black; /* Black text color */
+            display: block; /* Make the links appear below each other */
+            padding: 12px; /* Add some padding */
+            text-decoration: none; /* Remove underline from links */
+          }
+          
+          .vertical-menu a:hover {
+            background-color: #ccc; /* Dark grey background on mouse-over */
+          }
+          
+          .vertical-menu a.active {
+            background-color: #04AA6D; /* Add a green color to the "active/current" link */
+            color: white;
+          }
+          div.scrollmenu {
+            background-color: #eee;
+            overflow: auto;
+            white-space: nowrap;
+          }
+          
+          div.scrollmenu a {
+            display: inline-block;
+            color: black;
+            text-align: center;
+            padding: 14px;
+            text-decoration: none;
+          }
+
+          div.scrollmenu a:hover {
+            background-color: #ccc;
+          }
+          img {
+          border: 1px solid #ddd; /* Gray border */
+          border-radius: 4px;  /* Rounded border */
+          padding: 5px; /* Some padding */
+          width: 150px; /* Set a small width */
+        }
+        
+        /* Add a hover effect (blue shadow) */
+        img:hover {
+          box-shadow: 0 0 2px 1px rgba(0, 140, 186, 0.5);
         }
 
-            
-         .side {
-             width: 10%;
-             height: 900px;
-             display: flex;
-             flex-direction: column;
-             align-self: flex-start;
-         }
-      </style>
+
+        </style>
    </head>
    
    <body>
-   
-      <h1>Object Detector</h1>
-      
-      <div class = "container">
-         <section><img class="picture" src='{{  filename  }}' alt='{{  label  }}'}></img></section>
+    <div class="container">
+      <div class="side_navigation">
+        <div class="vertical-menu">
+          {% for camera_name in cameras_list %}
+          
+          <a href="../../{{  camera_name | replace ("('","")  | replace ("',)","")  }}/detection/latest">{{  camera_name | replace ("('","")  | replace ("',)","")  }}</a>
+          {% endfor %}
+        </div>
+      </div>
 
-         <aside class="side">
-            <button class="button"><a class="link", href="../../{{  camera  }}/detection/latest">Latest</a></button>
-            <button class="button"><a href="{{  previous_filename  }}">Previous</a></button>
-            <button class="button"><a href="{{  next_filename  }}">Next</a></button>
-            {% for camera_name in cameras_list %}
-            <button class="button"><a href="../../{{  camera_name | replace ("('","")  | replace ("',)","")  }}/detection/latest">{{  camera_name | replace ("('","")  | replace ("',)","")  }}</a></button
-            {% endfor %}
-
-         </aside>
+      <div class="photo">
+          <img class="picture" src='{{  filename  }}' alt='{{  label  }}'}></img> 
       </div>
       
-      
-   </body>
-</html>
+      <div class="bottom_navigation">
+        <div class="scrollmenu">
+          <a class="link", href="../../{{  camera  }}/detection/latest">Latest
+            <img src='{{  filename  }}' alt="latest image">
+          </a>
+
+          <a href="{{  previous_filename  }}">Previous
+            <img src='{{  previous_filename  }}' alt="latest image">
+          </a>
+          <a href="{{  next_filename  }}">Next
+            <img src='{{  next_filename  }}' alt="latest image">
+          </a>
+      </div>
+      </div>
+    </div>
+  </body>

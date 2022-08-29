@@ -2,7 +2,7 @@ version: "3.7"
 services:
 
   detector:
-    image: detector
+    image: git.mischaf.xyz/mischa/detector:latest
     container_name: detector
     devices:
       - /dev/apex_0:/dev/apex_0
@@ -15,7 +15,7 @@ services:
     networks:
       - detector
   detector-web:
-    image: detector-web
+    image: git.mischaf.xyz/mischa/detector-web:latest
     container_name: detector-web
     volumes:
       - /home/mischa/git/coral_object_detector:/python
