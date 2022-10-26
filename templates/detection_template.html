@@ -27,7 +27,11 @@
               width: 100%;
           }
           
-          .bottom_navigation { grid-area: bottom_navigation; }
+          .bottom_navigation { 
+            grid-area: bottom_navigation;
+            margin: auto;
+            width: 70%;
+           }
           .vertical-menu {
             width: 200px; /* Set a width if you like */
           }
@@ -68,8 +72,8 @@
           img {
           border: 1px solid #ddd; /* Gray border */
           border-radius: 4px;  /* Rounded border */
-          padding: 5px; /* Some padding */
-          width: 150px; /* Set a small width */
+          padding: 10px; /* Some padding */
+          width: 250px; /* Set a small width */
         }
         
         /* Add a hover effect (blue shadow) */
@@ -98,15 +102,14 @@
       
       <div class="bottom_navigation">
         <div class="scrollmenu">
+          <a href="{{  next_filename  }}">Next
+            <img src='../../photos/{{  next_filename  }}' alt="latest image">
+          </a>
           <a class="link", href="../../{{  camera  }}/detection/latest">Latest
             <img src='{{  filename  }}' alt="latest image">
           </a>
-
           <a href="{{  previous_filename  }}">Previous
-            <img src='{{  previous_filename  }}' alt="latest image">
-          </a>
-          <a href="{{  next_filename  }}">Next
-            <img src='{{  next_filename  }}' alt="latest image">
+            <img src='../../photos/{{  previous_filename  }}' alt="latest image">
           </a>
       </div>
       </div>

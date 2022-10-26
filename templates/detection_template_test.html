@@ -1,0 +1,65 @@
+<html>
+   <head>
+    <link rel="stylesheet" href="../../templates/styles.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   </head>
+   
+   <body>
+    <div class="container">
+      <div class="side_navigation">
+        <div class="vertical-menu", id="vert_menu">
+          {% for camera_name in cameras_list %}
+          <a href="../../{{  camera_name | replace ("('","")  | replace ("',)","")  }}/test/latest">{{  camera_name | replace ("('","")  | replace ("',)","")  }}</a>
+          {% endfor %}
+          
+          <label class="switch">
+            <input type="checkbox", onclick="darkMode()">
+            <span class="slider round">
+            
+            <script>
+            function darkMode() {
+               var body = document.body;
+               var vert_menu = document.getElementById('horiz_menu');
+               var horiz_menu = document.getElementById('vert_menu');
+               body.classList.toggle("dark_mode");
+               horiz_menu.classList.toggle("vertical-menu_dark");
+               vert_menu.classList.toggle("scrollmenu_dark");
+            }
+            </script>
+            </span>
+           </label>
+          <br>
+          <br>
+          <br>
+          {% for row in rows %}
+          {{  row[0]  }}
+          {% endfor %}
+          <br> {{  oid  }}
+          <br> {{  current_data[0][0]  }}
+        </div>
+      </div>
+
+      <div class="photo">
+          <img class="picture" src='{{  filename  }}' alt='{{  label  }}'}></img> 
+      </div>
+      <div class="bottom_navigation">
+        <div class="scrollmenu", id="horiz_menu">
+          {% for row in rows %}
+            {% if  (row[9] | replace ("./","/")) == filename %}
+            <a class="link", href="../../{{  row[7]  }}/test/{{  row[9] | replace ("./photos/","")  }}">
+            <img class="highlighted", src='/{{  row[9]  | replace ("./","")  }}', alt="{{  row[9]  }}">
+            {% elif  row[9] | replace (".","") == rows[9][9] | replace(".","") %}
+            <!-- This needs to link to a function that shows the next 10  -->
+            <a class="link", href="../../{{  next_rows[0][7]  }}/test/{{  next_rows[0][9] | replace ("./photos/","")  }}">
+            <img class="scrollmenu", src='/{{  next_rows[0][9]  | replace ("./","")  }}' alt="{{  next_rows[0][9]  }}">
+            <!--   -->
+            {% else %}
+            <a class="link", href="../../{{  row[7]  }}/test/{{  row[9] | replace ("./photos/","")  }}">
+            <img class="scrollmenu", src='/{{  row[9]  | replace ("./","")  }}' alt="{{  row[9]  }}">
+          {% endif %}
+          {% endfor %}
+        </a>
+      </div>
+      </div>
+    </div>
+  </body>
