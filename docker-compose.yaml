@@ -1,0 +1,36 @@
+version: "3.7"
+services:
+
+  detector:
+    image: git.mischaf.xyz/mischa/detector:latest
+    container_name: detector
+    devices:
+      - /dev/apex_0:/dev/apex_0
+    environment:
+      - TZ=America/Los_Angles
+    volumes:
+      - /home/mischa/git/coral_object_detector:/python
+    restart: unless-stopped
+    privileged: true
+    networks:
+      - detector
+  detector-web:
+    image: git.mischaf.xyz/mischa/detector-web:latest
+    container_name: detector-web
+    volumes:
+      - /home/mischa/git/coral_object_detector:/python
+    ports:
+      - 8001:8001
+    restart: unless-stopped
+    networks:
+      - proxy
+      - detector
+
+
+volumes:
+  localstorage:
+
+networks:
+  proxy:
+    external: true
+  detector:

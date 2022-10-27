@@ -1,0 +1,86 @@
+<html>
+   <head>
+      <style>
+        body {
+         width: 100vw;
+         height: calc(100vw * (9/16));
+         margin: 0;
+         padding: 0;
+         border: 0;
+         outline: 0;
+         font: 600 14px/24px "Open Sans", 
+            "HelveticaNeue-Light", 
+            "Helvetica Neue Light", 
+            "Helvetica Neue", 
+            Helvetica, Arial, 
+            "Lucida Grande", 
+            Sans-Serif;
+            background-color: #000000;
+
+         }
+         .container {
+            display: grid; 
+            grid-template-columns: 1fr; 
+            grid-template-rows: 0.05fr 2.95fr 0.05fr; 
+            gap: 0px 0px; 
+            grid-template-areas: 
+              "camera_menu"
+              "picture"
+              "navigation"; 
+          }
+          .picture { 
+              grid-area: picture;
+              height: 90%;
+            }
+          .camera_menu { grid-area: camera_menu; }
+          .navigation { grid-area: navigation; }
+         
+         div.scrollmenu {
+           display: grid;
+           background-color: #333;
+           margin: 0;
+               padding: 0;
+               border: 0;
+               outline: 0
+         }
+         
+         div.scrollmenu a {
+           display: flex;
+           color: white;
+           text-align: center;
+           padding: 14px;
+           text-decoration: none;
+         }
+         
+         div.scrollmenu a:hover {
+           background-color: #777;
+         }
+
+
+      </style>
+   </head>
+   
+   <body>
+   
+      <h1>Object Detector</h1>
+      <div class="camera_menu">
+        <div class="scrollmenu">
+           {% for camera_name in cameras_list %}
+          <a href="../../{{  camera_name | replace ("('","")  | replace ("',)","")  }}/detection/latest">{{  camera_name | replace ("('","")  | replace ("',)","")  }}</a>
+          {% endfor %}
+         </div>
+       </div>
+      <div class = "picture">
+        <img class="picture" src='{{  filename  }}' alt='{{  label  }}'}></img>       
+      </div>
+      <div class="navigation">
+        <div class="scrollmenu">
+          <a class="link", href="../../{{  camera  }}/detection/latest">Latest</a>
+          <a href="{{  previous_filename  }}">Previous</a>
+          <a href="{{  next_filename  }}">Next</a>
+        </div>
+      </div>
+   </body>
+</html>
+
+

@@ -1,0 +1,169 @@
+<html>
+   <head>
+      <style>
+
+        .container {  display: grid;
+            grid-template-columns: 0.3fr 1.7fr 1fr;
+            grid-template-rows: 1fr 1.8fr 0.2fr;
+            gap: 0px 0px;
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            grid-auto-flow: row;
+            grid-template-areas:
+              "side_navigation photo photo"
+              "side_navigation photo photo"
+              "side_navigation bottom_navigation bottom_navigation";
+          }
+          
+          .side_navigation { grid-area: side_navigation; }
+          
+          .photo { 
+              grid-area: photo; 
+              height: 100%;
+            }
+          .picture {
+              height: 100%;
+              width: 100%;
+              border: 1px solid #ddd; /* Gray border */
+              border-radius: 4px;  /* Rounded border */
+              padding: 5px; /* Some padding */
+          }
+
+          .bottom_navigation { 
+            grid-area: bottom_navigation;
+            margin: auto;
+            width: 50%;
+          }
+          .vertical-menu {
+            width: 100%; /* Set a width if you like */
+            background-color: #eee;
+          }
+          
+          .vertical-menu a {
+            /*background-color: #eee;  Grey background color */
+            color: black; /* Black text color */
+            display: block; /* Make the links appear below each other */
+            padding: 12px; /* Add some padding */
+            text-decoration: none; /* Remove underline from links */
+          }
+                  /* Add a hover effect (blue shadow) */
+          a:hover {
+            box-shadow: 0 0  .3px 3px rgba(0, 140, 186, 0.5);
+          }
+          .vertical-menu a:hover {
+            background-color: #ccc; /* Dark grey background on mouse-over */
+          }
+          
+          .vertical-menu a.active {
+            background-color: #04AA6D; /* Add a green color to the "active/current" link */
+            color: white;
+          }
+          div.scrollmenu {
+            background-color: #eee;
+            overflow: auto;
+            white-space: nowrap;
+            margin: auto;
+            width: 70%;
+          }
+          
+          div.scrollmenu a {
+            display: inline-block;
+            color: black;
+            text-align: center;
+            padding: 14px;
+            text-decoration: none;
+          }
+
+          div.scrollmenu a:hover {
+            background-color: #ccc;
+          }
+          .navigation_picture {
+          border: 1px solid #ddd; /* Gray border */
+          border-radius: 4px;  /* Rounded border */
+          padding: 5px; /* Some padding */
+          max-width: 5vw; /* Set a small width */
+        }
+        
+        /* Add a hover effect (blue shadow) */
+        img:hover {
+          box-shadow: 0 0 2px 1px rgba(0, 140, 186, 0.5);
+        }
+        .link {
+            width: 32%;
+             display: inline-block;
+             text-align: center;
+
+          }
+        /* Media Query */
+        @media only screen and (max-width: 600px) {
+          .navigation_picture {
+          border: 1px solid #ddd; /* Gray border */
+          border-radius: 4px;  /* Rounded border */
+          padding: 5px; /* Some padding */
+          max-width: 100%; /* Set a small width */
+          }
+          div.scrollmenu {
+            background-color: #eee;
+            overflow: hidden;
+            white-space: nowrap;
+            margin: auto;
+            width: 100%;
+          }
+          .bottom_navigation { 
+            grid-area: bottom_navigation;
+            margin: auto;
+            width: 100%;
+          }
+
+  
+      }
+
+        </style>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   </head>
+   
+   <body>
+    <div class="container">
+      <div class="side_navigation">
+        <div class="vertical-menu">
+          {% for camera_name in cameras_list %}
+          
+          <a href="../../{{  camera_name | replace ("('","")  | replace ("',)","")  }}/detection/latest">{{  camera_name | replace ("('","")  | replace ("',)","")  }}</a>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="photo">
+          <img class="picture" src='{{  filename  }}' alt='{{  label  }}'}></img> 
+      </div>
+      
+      <div class="bottom_navigation">
+        <div class="scrollmenu">
+
+
+            <div class="link">              
+              <a href="{{  next_filename  }}">
+                
+                <img class="navigation_picture" src='../../photos/{{  next_filename  }}' alt="latest image">
+              </a>
+              <br> Next
+            </div>
+
+            <div class="link">
+              <a href="../../{{  camera  }}/detection/latest"> 
+                <img class="navigation_picture" src='{{  filename  }}' alt="latest image">
+              </a>
+              <br> Latest
+            </div>
+
+            <div class="link">
+              <a  href="{{  previous_filename  }}">
+                <img class="navigation_picture" src='../../photos/{{  previous_filename  }}' alt="latest image">
+              </a>
+              <br> Previous
+            </div>
+      </div>
+      </div>
+    </div>
+  </body>

@@ -8,4 +8,4 @@ curl https://packages.cloud.google.com/apt/doc/apt-key.gpg |  apt-key add - && \
 apt-get update  && apt-get install python3-pycoral -y
 RUN apt install python3-pip -y
 RUN python3 -m pip install -r /tmp/requirements.txt
-ENTRYPOINT [ "python3", "/python/jpeg.py"]
+ENTRYPOINT [ "python3", "/python/detect.py"]
