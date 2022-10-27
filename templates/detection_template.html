@@ -25,21 +25,32 @@
           .picture {
               height: 100%;
               width: 100%;
+              border: 1px solid #ddd; /* Gray border */
+              border-radius: 4px;  /* Rounded border */
+              padding: 5px; /* Some padding */
           }
-          
-          .bottom_navigation { grid-area: bottom_navigation; }
+
+          .bottom_navigation { 
+            grid-area: bottom_navigation;
+            margin: auto;
+            width: 50%;
+          }
           .vertical-menu {
-            width: 200px; /* Set a width if you like */
+            width: 100%; /* Set a width if you like */
+            background-color: #eee;
           }
           
           .vertical-menu a {
-            background-color: #eee; /* Grey background color */
+            /*background-color: #eee;  Grey background color */
             color: black; /* Black text color */
             display: block; /* Make the links appear below each other */
             padding: 12px; /* Add some padding */
             text-decoration: none; /* Remove underline from links */
           }
-          
+                  /* Add a hover effect (blue shadow) */
+          a:hover {
+            box-shadow: 0 0  .3px 3px rgba(0, 140, 186, 0.5);
+          }
           .vertical-menu a:hover {
             background-color: #ccc; /* Dark grey background on mouse-over */
           }
@@ -52,6 +63,8 @@
             background-color: #eee;
             overflow: auto;
             white-space: nowrap;
+            margin: auto;
+            width: 70%;
           }
           
           div.scrollmenu a {
@@ -65,20 +78,49 @@
           div.scrollmenu a:hover {
             background-color: #ccc;
           }
-          img {
+          .navigation_picture {
           border: 1px solid #ddd; /* Gray border */
           border-radius: 4px;  /* Rounded border */
           padding: 5px; /* Some padding */
-          width: 150px; /* Set a small width */
+          max-width: 5vw; /* Set a small width */
         }
         
         /* Add a hover effect (blue shadow) */
         img:hover {
           box-shadow: 0 0 2px 1px rgba(0, 140, 186, 0.5);
         }
+        .link {
+            width: 32%;
+             display: inline-block;
+             text-align: center;
 
+          }
+        /* Media Query */
+        @media only screen and (max-width: 600px) {
+          .navigation_picture {
+          border: 1px solid #ddd; /* Gray border */
+          border-radius: 4px;  /* Rounded border */
+          padding: 5px; /* Some padding */
+          max-width: 100%; /* Set a small width */
+          }
+          div.scrollmenu {
+            background-color: #eee;
+            overflow: hidden;
+            white-space: nowrap;
+            margin: auto;
+            width: 100%;
+          }
+          .bottom_navigation { 
+            grid-area: bottom_navigation;
+            margin: auto;
+            width: 100%;
+          }
+
+  
+      }
 
         </style>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
    </head>
    
    <body>
@@ -98,16 +140,29 @@
       
       <div class="bottom_navigation">
         <div class="scrollmenu">
-          <a class="link", href="../../{{  camera  }}/detection/latest">Latest
-            <img src='{{  filename  }}' alt="latest image">
-          </a>
 
-          <a href="{{  previous_filename  }}">Previous
-            <img src='{{  previous_filename  }}' alt="latest image">
-          </a>
-          <a href="{{  next_filename  }}">Next
-            <img src='{{  next_filename  }}' alt="latest image">
-          </a>
+
+            <div class="link">              
+              <a href="{{  next_filename  }}">
+                
+                <img class="navigation_picture" src='../../photos/{{  next_filename  }}' alt="latest image">
+              </a>
+              <br> Next
+            </div>
+
+            <div class="link">
+              <a href="../../{{  camera  }}/detection/latest"> 
+                <img class="navigation_picture" src='{{  filename  }}' alt="latest image">
+              </a>
+              <br> Latest
+            </div>
+
+            <div class="link">
+              <a  href="{{  previous_filename  }}">
+                <img class="navigation_picture" src='../../photos/{{  previous_filename  }}' alt="latest image">
+              </a>
+              <br> Previous
+            </div>
       </div>
       </div>
     </div>
